@@ -1,0 +1,85 @@
+{
+  "Vandal": [
+    {
+      "name": "yugen",
+      "time": "79"
+    },
+    {
+      "name": "Wez C",
+      "time": "80"
+    },
+    {
+      "name": "Kelon07",
+      "time": "84"
+    },
+    {
+      "name": "Wayne",
+      "time": "87"
+    },
+    {
+      "name": "SupAYYYer",
+      "time": "102"
+    }
+  ],
+  "Ghost": [
+    {
+      "name": "Wez C",
+      "time": "118"
+    },
+    {
+      "name": "yugen",
+      "time": "127"
+    }
+  ],
+  "Marshal": [
+    {
+      "name": "yugen",
+      "time": "105"
+    },
+    {
+      "name": "Wez C",
+      "time": "121"
+    }
+  ],
+  "Classic": [],
+  "Shorty": [],
+  "Frenzy": [],
+  "Sheriff": [],
+  "Stinger": [],
+  "Spectre": [],
+  "Bucky": [
+    {
+      "name": "Kelon07",
+      "time": "137"
+    },
+    {
+      "name": "yugen",
+      "time": "148"
+    }
+  ],
+  "Judge": [],
+  "Bulldog": [],
+  "Guardian": [
+    {
+      "name": "yugen",
+      "time": "81"
+    },
+    {
+      "name": "Kelon07",
+      "time": "99"
+    }
+  ],
+  "Phantom": [
+    {
+      "name": "yugen",
+      "time": "89"
+    },
+    {
+      "name": "Wayne",
+      "time": "115"
+    }
+  ],
+  "Operator": [],
+  "Ares": [],
+  "Odin": []
+}
