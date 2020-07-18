@@ -6,3 +6,4 @@ Store the last 10 times of a person (Keep the average)
 
 Create a help function for commands
 
+Look into heroku database

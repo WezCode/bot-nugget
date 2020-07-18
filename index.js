@@ -1,5 +1,6 @@
 const Discord = require("discord.js"); //looks in node_modules folder for discord.js
 // const { prefix, token } = require("./auth.json");
+const prefix = "!";
 const fs = require("fs");
 const bot = new Discord.Client();
 
