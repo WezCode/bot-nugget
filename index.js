@@ -9,19 +9,6 @@ bot.on("ready", async () => {
 	console.log(`${bot.user.username} is online!`);
 });
 
-
-// const checkIfCommandIsGunName = (valorantObject, gunArg) => {
-// 	let retVal = false;
-// 	Object.keys(valorantObject).forEach((gunKey) => {
-// 		if (gunArg.toLowerCase() == gunKey.toLowerCase()) {
-// 			console.log("comparing", gunArg, "to", gunKey);
-// 			gunObject = valorantObject[gunKey];
-// 			retVal = true;
-// 		}
-// 	})
-// 	return retVal;
-// };
-
 bot.on("message", async message => {
 	//Split message into an array (messageArray)
 	let messageArray = message.content.split(" ");
@@ -65,15 +52,12 @@ bot.on("voiceStateUpdate", (oldMember, newMember) => {
 	let textString = text.toString();
 	let textArray = textString.split("\n");
 	let random = Math.floor(Math.random() * 358);
-	// message.channel.send(`${textArray[random]}`);
 
 	if (oldUserChannel === undefined && newUserChannel !== undefined) {
 		newMember
 			.setNickname(`${textArray[random]}` + " Nugget")
 			.then(console.log)
 			.catch(console.error);
-	} else if (newUserChannel === undefined) {
-		// User leaves a voice channel
 	}
 });
 
@@ -92,24 +76,6 @@ function getJsonData(path) {
 	return JSON.parse(fs.readFileSync(path, "utf-8"));
 }
 
-const displayStats = (valorantObject) => {
-	//DISPLAY STATS
-
-	let displayString = "";
-	for (var gun in valorantObject) {
-		if (valorantObject[gun].length != 0) {
-			displayString += `${gun}\n`;
-			//Dont log anything if no entries for games
-			for (let i = 0; i < valorantObject[gun].length; i++) {
-				displayString += `${i + 1}. ${valorantObject[gun][i].name} ${valorantObject[gun][i].time}\n`;
-			}
-			displayString += "\n";
-		}
-	}
-	console.log(displayString);
-	return displayString;
-};
-
 const valorantStatKeeper = (message, messageArray) => {
 	let valorantObject = getJsonData("./valorant-stats.json");
 	let firstArg = messageArray[0];
@@ -118,16 +84,7 @@ const valorantStatKeeper = (message, messageArray) => {
 	// Are the only two commands right now.	
 
 	if (firstArg.toLowerCase() == "stats") {
-		const msg = jsonToStringDisplay(valorantObject, 4, message);
-		// const vandalString = "fhjieo\nafh;ioawehfosafadwaeah";
-		// const phantomString = "fhjieoafh;ioawehffasfs\nasaoeah";
-
-		// let botembed = new Discord.RichEmbed()
-		// 	.setDescription("msg")
-		// 	.setColor("#15f153")
-		// 	.addField("Vandal", vandalString, true)
-		// 	.addField("Phantom", phantomString, true);
-
+		const msg = jsonToEmbed(valorantObject);
 		message.channel.send(msg);
 	} else if (checkIfCommandIsGunName(valorantObject, firstArg)) {
 		if (!isNaN(newTime)) {
@@ -183,43 +140,41 @@ const makeFirstCharacterUpperAndRestLower = (string) => {
 	return lower.charAt(0).toUpperCase() + lower.substring(1);
 }
 
-//Sorting function that will put the fastest times on top/start
+// Sorting function that will put the fastest times on top/start
 const sortTimes = (entries) => {
 	entries.sort((a, b) => { return parseInt(a.time, 10) - parseInt(b.time, 10) });
 }
 
-const jsonToStringDisplay = (jsonObject, columns) => {
-
-	console.log("called jsontostring");
-	const arrayRep = [];
-	let finalArray = [];
-	let displayString = "";
-	//This array will hold the columns (grouped by col num passed in)
-	for (const gun in jsonObject) {
-		const levelOne = [];
-		if (jsonObject[gun].length != 0) {
-			levelOne.push(`${gun}`);
-			for (const entry of jsonObject[gun]) {
-				levelOne.push(entry);
-			}
-			arrayRep.push(levelOne);
-		}
-	}
-
-	arrayRep.sort((a, b) => { return b.length - a.length });
-	// finalArray = setUpArray(arrayRep, columns);
+// Converts the valorant-stats.json into a nice embed display 
+// (returns an discord embed object)
+const jsonToEmbed = (jsonObject) => {
 
 	let botembed = new Discord.RichEmbed()
 		.setColor("#15f153");
 
-	//Convert array of entries into a string
-	console.log("array rep", arrayRep);
+	// An array representation of valorant stats data
+	const arrayRep = [];
 
+	for (const gun in jsonObject) {
+		const gunEntry = [];
+		//Only bother copying the array if it won't be empty
+		if (jsonObject[gun].length != 0) {
+			//Since we are in an for/in loop, this pushes the actual gun string
+			gunEntry.push(gun);
+			for (const entry of jsonObject[gun]) {
+				gunEntry.push(entry);
+			}
+			arrayRep.push(gunEntry);
+		}
+	}
 
+	// Sort Array Representation of stats by number of entries
+	arrayRep.sort((a, b) => { return b.length - a.length });
+	// NewArray stores the 
 	const newArray = [];
 	for (const gun of arrayRep) {
-		let gunEntryListPair = [];
-		gunEntryListPair.push(gun[0]);
+		let gunEntryListPair = { gun: "", entries: "" };
+		gunEntryListPair.gun = gun[0];
 		const entries = gun.slice(1);
 		let entriesStringList = "";
 		for (const entry of entries) {
@@ -232,7 +187,7 @@ const jsonToStringDisplay = (jsonObject, columns) => {
 		console.log("entriesStringList", entriesStringList);
 
 
-		gunEntryListPair.push(entriesStringList);
+		gunEntryListPair.entries = entriesStringList;
 
 		console.log("gunEntryListPair", gunEntryListPair);
 		newArray.push(gunEntryListPair);
@@ -242,70 +197,17 @@ const jsonToStringDisplay = (jsonObject, columns) => {
 
 	for (const array of newArray) {
 		// botembed.addField(gun[0], "```" + gun.slice(1) + "```", true);
-		botembed.addField(array[0], array[1], true);
+		botembed.addField(array.gun, array.entries, true);
 	}
-
-
-	//Manual padding and table display for console
-	// for (const row of finalArray) {
-	// 	for (const column of row) {
-	// 		//Add Gun Name
-	// 		displayString += padString(`${column[0]}`, 15);
-	// 	}
-	// 	displayString += "\n";
-	// 	//Always loop the number of times in row[0].length
-	// 	for (let i = 1; i <= row[0].length; ++i) {
-	// 		for (const column of row) {
-	// 			if (column[i] != undefined) {
-	// 				displayString += padString(`${column[i]}`, 15);
-	// 			}
-	// 		}
-	// 		displayString += "\n";
-
-	// 	}
-	// 	displayString += "\n";
-	// }
-
-	// console.log(displayString);
 	return botembed;
 
 }
 
 const padString = (string, padWidth) => {
-	// let content = string.split("$");
-	// console.log(content);
-	// let paddedString = content[0];
+
 	let paddedString = string;
-	// let time = content[1];
-	// console.log(string.length, padWidth);
-
-	// if (time != undefined) {
-	// 	// console.log(paddedString, padWidth);
-	// 	while (paddedString.length < (padWidth - time.length)) {
-	// 		paddedString += " ";
-	// 	}
-	// 	paddedString += time;
-	// 	while (paddedString.length < padWidth) {
-	// 		paddedString += " ";
-	// 	}
-
-	// } 
 	while (paddedString.length < padWidth) {
 		paddedString += " ";
 	}
 	return paddedString;
-}
-
-const setUpArray = (sortedArray, columns) => {
-	const array = [];
-	const rows = Math.ceil(sortedArray.length / columns);
-	for (let i = 0; i < rows; ++i) {
-		array.push([]);
-	}
-
-	for (let i = 0; i < sortedArray.length; ++i) {
-		const index = Math.floor(i / columns);
-		array[index].push(sortedArray[i]);
-	}
-	return array;
 }
