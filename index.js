@@ -1,9 +1,9 @@
 const Discord = require("discord.js"); //looks in node_modules folder for discord.js
-const { prefix, token } = require("./auth.json");
+// const { prefix, token } = require("./auth.json");
 const fs = require("fs");
 const bot = new Discord.Client();
 
-bot.login(token);
+bot.login(process.env.token);
 
 bot.on("ready", async () => {
 	console.log(`${bot.user.username} is online!`);
