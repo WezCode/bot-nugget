@@ -115,6 +115,7 @@ const valorantStatKeeper = (message, messageArray) => {
 					name: username,
 					time: newTime
 				};
+				message.channel.send(`Recording your first entry of ${newEntry.time} for ${firstArgCasedProperly}`);
 				valorantObject[firstArgCasedProperly].push(newEntry);
 			}
 			sortTimes(valorantObject[firstArgCasedProperly]);
@@ -173,30 +174,25 @@ const jsonToEmbed = (jsonObject) => {
 	// NewArray stores the 
 	const newArray = [];
 	for (const gun of arrayRep) {
-		let gunEntryListPair = { gun: "", entries: "" };
-		gunEntryListPair.gun = gun[0];
+		let gunEntries = { gun: "", entries: "" };
 		const entries = gun.slice(1);
 		let entriesStringList = "";
+		gunEntries.gun = gun[0];
 		for (const entry of entries) {
 			entriesStringList += padString(entry.name, 12);
 			entriesStringList += entry.time;
-			//Don't do it for last one maybe
 			entriesStringList += "\n";
 		}
+		// Surround in code block prefix/suffix so it doesn't trim the hard
+		// acquired padding I bothered to implement
 		entriesStringList = "```" + entriesStringList + "```";
-		console.log("entriesStringList", entriesStringList);
-
-
-		gunEntryListPair.entries = entriesStringList;
-
-		console.log("gunEntryListPair", gunEntryListPair);
-		newArray.push(gunEntryListPair);
+		gunEntries.entries = entriesStringList;
+		newArray.push(gunEntries);
 	}
 
 	console.log("newArray", newArray);
 
 	for (const array of newArray) {
-		// botembed.addField(gun[0], "```" + gun.slice(1) + "```", true);
 		botembed.addField(array.gun, array.entries, true);
 	}
 	return botembed;
@@ -204,7 +200,6 @@ const jsonToEmbed = (jsonObject) => {
 }
 
 const padString = (string, padWidth) => {
-
 	let paddedString = string;
 	while (paddedString.length < padWidth) {
 		paddedString += " ";
