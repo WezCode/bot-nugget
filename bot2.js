@@ -32,6 +32,8 @@ bot.on("message", async message => {
 	if (message.channel.name == "valorant-shooting-practice-eliminate-50-strafe") {
 
 		valorantStatKeeper(message, messageArray);
+	} else if (message.channel.name == "valorant-test") {
+		valorantStatKeeper(message, messageArray);
 	}
 
 	switch (firstArg) {
@@ -92,6 +94,7 @@ function getJsonData(path) {
 
 const displayStats = (valorantObject) => {
 	//DISPLAY STATS
+
 	let displayString = "";
 	for (var gun in valorantObject) {
 		if (valorantObject[gun].length != 0) {
@@ -115,7 +118,17 @@ const valorantStatKeeper = (message, messageArray) => {
 	// Are the only two commands right now.	
 
 	if (firstArg.toLowerCase() == "stats") {
-		message.channel.send(displayStats(valorantObject));
+		const msg = jsonToStringDisplay(valorantObject, 4, message);
+		// const vandalString = "fhjieo\nafh;ioawehfosafadwaeah";
+		// const phantomString = "fhjieoafh;ioawehffasfs\nasaoeah";
+
+		// let botembed = new Discord.RichEmbed()
+		// 	.setDescription("msg")
+		// 	.setColor("#15f153")
+		// 	.addField("Vandal", vandalString, true)
+		// 	.addField("Phantom", phantomString, true);
+
+		message.channel.send(msg);
 	} else if (checkIfCommandIsGunName(valorantObject, firstArg)) {
 		if (!isNaN(newTime)) {
 			let entryExists = false;
@@ -173,4 +186,126 @@ const makeFirstCharacterUpperAndRestLower = (string) => {
 //Sorting function that will put the fastest times on top/start
 const sortTimes = (entries) => {
 	entries.sort((a, b) => { return parseInt(a.time, 10) - parseInt(b.time, 10) });
+}
+
+const jsonToStringDisplay = (jsonObject, columns) => {
+
+	console.log("called jsontostring");
+	const arrayRep = [];
+	let finalArray = [];
+	let displayString = "";
+	//This array will hold the columns (grouped by col num passed in)
+	for (const gun in jsonObject) {
+		const levelOne = [];
+		if (jsonObject[gun].length != 0) {
+			levelOne.push(`${gun}`);
+			for (const entry of jsonObject[gun]) {
+				levelOne.push(entry);
+			}
+			arrayRep.push(levelOne);
+		}
+	}
+
+	arrayRep.sort((a, b) => { return b.length - a.length });
+	// finalArray = setUpArray(arrayRep, columns);
+
+	let botembed = new Discord.RichEmbed()
+		.setColor("#15f153");
+
+	//Convert array of entries into a string
+	console.log("array rep", arrayRep);
+
+
+	const newArray = [];
+	for (const gun of arrayRep) {
+		let gunEntryListPair = [];
+		gunEntryListPair.push(gun[0]);
+		const entries = gun.slice(1);
+		let entriesStringList = "";
+		for (const entry of entries) {
+			entriesStringList += padString(entry.name, 12);
+			entriesStringList += entry.time;
+			//Don't do it for last one maybe
+			entriesStringList += "\n";
+		}
+		entriesStringList = "```" + entriesStringList + "```";
+		console.log("entriesStringList", entriesStringList);
+
+
+		gunEntryListPair.push(entriesStringList);
+
+		console.log("gunEntryListPair", gunEntryListPair);
+		newArray.push(gunEntryListPair);
+	}
+
+	console.log("newArray", newArray);
+
+	for (const array of newArray) {
+		// botembed.addField(gun[0], "```" + gun.slice(1) + "```", true);
+		botembed.addField(array[0], array[1], true);
+	}
+
+
+	//Manual padding and table display for console
+	// for (const row of finalArray) {
+	// 	for (const column of row) {
+	// 		//Add Gun Name
+	// 		displayString += padString(`${column[0]}`, 15);
+	// 	}
+	// 	displayString += "\n";
+	// 	//Always loop the number of times in row[0].length
+	// 	for (let i = 1; i <= row[0].length; ++i) {
+	// 		for (const column of row) {
+	// 			if (column[i] != undefined) {
+	// 				displayString += padString(`${column[i]}`, 15);
+	// 			}
+	// 		}
+	// 		displayString += "\n";
+
+	// 	}
+	// 	displayString += "\n";
+	// }
+
+	// console.log(displayString);
+	return botembed;
+
+}
+
+const padString = (string, padWidth) => {
+	// let content = string.split("$");
+	// console.log(content);
+	// let paddedString = content[0];
+	let paddedString = string;
+	// let time = content[1];
+	// console.log(string.length, padWidth);
+
+	// if (time != undefined) {
+	// 	// console.log(paddedString, padWidth);
+	// 	while (paddedString.length < (padWidth - time.length)) {
+	// 		paddedString += " ";
+	// 	}
+	// 	paddedString += time;
+	// 	while (paddedString.length < padWidth) {
+	// 		paddedString += " ";
+	// 	}
+
+	// } 
+	while (paddedString.length < padWidth) {
+		paddedString += " ";
+	}
+	return paddedString;
+}
+
+const setUpArray = (sortedArray, columns) => {
+	const array = [];
+	const rows = Math.ceil(sortedArray.length / columns);
+	for (let i = 0; i < rows; ++i) {
+		array.push([]);
+	}
+
+	for (let i = 0; i < sortedArray.length; ++i) {
+		const index = Math.floor(i / columns);
+		array[index].push(sortedArray[i]);
+	}
+	return array;
 }
